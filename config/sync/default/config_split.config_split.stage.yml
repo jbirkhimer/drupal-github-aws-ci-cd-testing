@@ -1,0 +1,17 @@
+uuid: d0df3700-b83e-464d-8cac-d740a5d8beb9
+langcode: en
+status: true
+dependencies: {  }
+id: stage
+label: stage
+description: ''
+weight: 1
+folder: ../config/sync/stage
+module: {  }
+theme: {  }
+blacklist:
+  - environment_indicator.indicator
+graylist:
+  - system.site
+graylist_dependents: true
+graylist_skip_equal: true

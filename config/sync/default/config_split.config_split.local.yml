@@ -1,0 +1,17 @@
+uuid: 544eca0c-4029-4604-bf3c-9038cdc1c82a
+langcode: en
+status: true
+dependencies: {  }
+id: local
+label: local
+description: ''
+weight: 1
+folder: ../config/sync/local
+module: {  }
+theme: {  }
+blacklist:
+  - environment_indicator.indicator
+graylist:
+  - system.site
+graylist_dependents: true
+graylist_skip_equal: true

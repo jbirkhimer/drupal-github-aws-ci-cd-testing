@@ -1,0 +1,17 @@
+uuid: fb70acfa-448a-43f0-8ce2-782caf1a515f
+langcode: en
+status: true
+dependencies: {  }
+id: dev
+label: dev
+description: ''
+weight: 1
+folder: ../config/sync/dev
+module: {  }
+theme: {  }
+blacklist:
+  - environment_indicator.indicator
+graylist:
+  - system.site
+graylist_dependents: true
+graylist_skip_equal: true

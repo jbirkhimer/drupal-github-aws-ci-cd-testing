@@ -1,0 +1,44 @@
+name: drupal-github-aws-ci-cd-testing
+recipe: drupal10
+config:
+  webroot: web
+  database: mysql:8.0
+env_file:
+  - defaults.env
+tooling:
+  deploy:
+    service: appserver
+    description: "Run drupal database updates, cache rebuild, config import"
+    cmd: drush deploy -y
+    stdout:
+      description: Running drupal deploy
+  cr:
+    service: appserver
+    description: "Rebuild drupal caches"
+    cmd: drush cr -y
+    stdout:
+      description: Rebuilding drupal caches
+  cim:
+    service: appserver
+    description: "Import drupal configuration"
+    cmd: drush cim -y
+    stdout:
+      description: Importing drupal configuration
+  cex:
+    service: appserver
+    description: "Export drupal configuration"
+    cmd: drush cex -y
+    stdout:
+      description: Exporting drupal configuration
+  entup:
+    service: appserver
+    description: "Drupal entities update"
+    cmd: drush entup -y
+    stdout:
+      description: Updating drupal entities
+  updb:
+    service: appserver
+    description: "Run drupal database updates"
+    cmd: drush updb -y
+    stdout:
+      description: Running drupal database updates

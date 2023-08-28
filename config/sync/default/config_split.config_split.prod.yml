@@ -1,0 +1,17 @@
+uuid: f9b86e58-c4f5-41e7-af92-88e95199de0e
+langcode: en
+status: true
+dependencies: {  }
+id: prod
+label: prod
+description: ''
+weight: 1
+folder: ../config/sync/prod
+module: {  }
+theme: {  }
+blacklist:
+  - environment_indicator.indicator
+graylist:
+  - system.site
+graylist_dependents: true
+graylist_skip_equal: true
