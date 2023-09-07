@@ -1,0 +1,68 @@
+# This workflow will Deploy a Web App to Amazon EC2 using AWS CodeDeploy,
+# when there is a push to the $default-branch branch.
+#
+# To use this workflow, you will need to complete the following set-up steps:
+#
+# 1. Store an IAM user access key in GitHub Actions secrets named `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+#    See the documentation for each action used below for the recommended IAM policies for this IAM user,
+#    and best practices on handling the access key credentials.
+
+name: Deploy to Amazon EC2
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Where to release (dev , stag, prod)?'
+        required: true
+        default: 'development'
+        type: string
+    secrets:
+      IAMROLE_GITHUB:
+        description: Assume Role directly using GitHub OIDC provider
+        required: true
+
+env:
+  AWS_REGION: us-gov-west-1 # set this to your preferred AWS region, e.g. us-gov-west-1
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: ${{inputs.environment}}
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read  # This is required for actions/checkout
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+        role-session-name: GitHub-Action-Role
+#        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Create CodeDeploy Deployment
+      id: deploy
+      run: |
+        echo "Deploying branch $GITHUB_REF to ${{inputs.environment}}"
+        commit_hash=`git rev-parse HEAD`
+        REPOSITORY_NAME=`basename $GITHUB_REPOSITORY`
+        aws deploy create-deployment \
+          --application-name drupal-app \
+          --deployment-group-name $REPOSITORY_NAME-dg-${{inputs.environment}} \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --github-location repository=$GITHUB_REPOSITORY,commitId=$commit_hash
+#          --github-location repository=${{ github.repository }},commitId=${{ github.sha }}

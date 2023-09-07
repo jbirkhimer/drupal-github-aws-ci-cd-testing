@@ -1,0 +1,55 @@
+name: Main Workflow
+run-name: ${{ github.actor }} just push/merge code or created pull request
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+  workflow_dispatch:
+#    inputs:
+#      releaseType:
+#        description: 'Where to release (dev , stag, prod)?'
+#        required: true
+#        default: 'dev'
+#        type: choice
+#        options:
+#          - dev
+#          - stage
+#          - prod
+
+
+jobs:
+
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yml
+  # test:
+  #   name: Test
+  #   needs: build
+  #   uses: ./.github/workflows/test.yml
+  # code-review:
+  #   name: Code Review
+  #   needs: build
+  #   uses: ./.github/workflows/code-standards.yml
+  sonarqube:
+    name: SonarQube analysis
+    needs: build
+    uses: ./.github/workflows/sonarqube.yml
+    secrets: inherit
+    permissions:
+      pull-requests: read # allows SonarQube to decorate PRs with analysis results
+      contents: read
+  deploy:
+    name: Deploy to AWS EC2
+    needs: [build, sonarqube]
+    strategy:
+      matrix:
+        stage: [ dev, stage, prod ]
+    uses: ./.github/workflows/aws-codedeploy.yml
+    with:
+      environment: ${{ matrix.stage }}
+    secrets: inherit
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read  # This is required for actions/checkout

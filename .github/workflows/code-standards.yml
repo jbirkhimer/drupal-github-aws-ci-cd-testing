@@ -1,0 +1,120 @@
+name: Drupal 10 Code Review
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  phpcs:
+    name: PHPCS
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php_version: [ '8.1' ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP ${{ matrix.php_version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php_version }}
+          extensions: gd
+          tools: composer:v2, phpstan
+
+      - name: Check if composer.json exists
+        id: check_files
+        uses: andstor/file-existence-action@v2.0.0
+        with:
+          files: 'composer.json'
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Install PHP Codesniffer
+        run: |
+          composer require --dev --no-interaction --no-progress dealerdirect/phpcodesniffer-composer-installer
+          composer require --dev --no-interaction --no-progress drupal/coder
+
+      - name: Composer home directory
+        run: composer config home
+
+      - name: Verify Registered Standards
+        run: ./vendor/bin/phpcs -i
+
+      - name: Manually Set Installed Paths
+        run: ./vendor/bin/phpcs --config-set installed_paths ../../drupal/coder/coder_sniffer,../../sirbrillig/phpcs-variable-analysis,../../slevomat/coding-standard
+
+      - name: Code review initiated
+        run: |
+          ./vendor/bin/phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml ./web/modules/custom/autocode_test
+          ./vendor/bin/phpcs --standard=DrupalPractice --php,module,inc,install,test,profile,theme,css,info,txt,md,yml ./web/modules/custom/autocode_test
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php_version: [ '8.1' ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP ${{ matrix.php_version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php_version }}
+          extensions: gd
+          tools: composer:v2, phpstan
+
+      - name: Check if composer.json exists
+        id: check_files
+        uses: andstor/file-existence-action@v2.0.0
+        with:
+          files: 'composer.json'
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run PHPStan
+        run: phpstan analyse ./web/modules/custom/autocode_test
