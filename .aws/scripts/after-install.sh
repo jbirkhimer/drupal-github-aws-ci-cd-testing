@@ -1,5 +1,16 @@
 #!/bin/bash
 
+printenv
+echo "================================="
+printenv | grep ENV
+echo "---------------------------------"
+if [ "$DEPLOYMENT_GROUP_NAME" == "drupal-github-aws-ci-cd-testing-dg-dev" ]
+then
+  echo "Environment = dev"
+else
+  echo "Environment != dev, DEPLOYMENT_GROUP_NAME = $DEPLOYMENT_GROUP_NAME"
+fi
+
 PROJECT_DIR="/var/www/drupal/drupal-github-aws-ci-cd-testing"
 
 cd $PROJECT_DIR || { echo "ERROR: $PROJECT_DIR does not exist!"; exit 1; }
