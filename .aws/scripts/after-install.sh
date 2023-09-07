@@ -12,11 +12,7 @@ cd $PROJECT_DIR || { echo "ERROR: $PROJECT_DIR does not exist!"; exit 1; }
 # run drush commands as needed
 cd $PROJECT_DIR/web || { echo "ERROR: $PROJECT_DIR/web does not exist!"; exit 1; }
 
-# fix for bug with hook_install during site:install only allows using existing-config for minimal install profile
-# see https://www.drupal.org/project/drupal/issues/2982052 and https://www.drupal.org/node/2897299
-sed -i 's|standard|minimal|g' ../config/sync/default/core.extension.yml
-
-chmod 755 $PROJECT_DIR/vendor/drush
+chmod u+x $PROJECT_DIR/vendor/bin/drush
 
 ../vendor/bin/drush deploy -y
 
@@ -24,13 +20,12 @@ chmod 755 $PROJECT_DIR/vendor/drush
 
 ../vendor/bin/drush cache:rebuild
 
-# permissions
-find $PROJECT_DIR -type d -exec chmod 755 {} +
-find $PROJECT_DIR -type f -exec chmod 644 {} +
-chmod 444 $PROJECT_DIR/web/.htaccess
-chmod 555 $PROJECT_DIR/web/sites/default
-chmod 400 $PROJECT_DIR/web/sites/default/settings.php
-chmod 755 $PROJECT_DIR/vendor/drush
-find $PROJECT_DIR/web/sites/default/files -type d -exec chmod 755 {} +
-find $PROJECT_DIR/web/sites/default/files -type f -exec chmod 664 {} +
-chown -R ec2-user:apache /var/www/drupal
+# Change the group ownership of /var/www and its contents to the apache group
+chown -R ec2-user:apache /var/www
+chmod 2775 /var/www && find /var/www -type d -exec chmod 2775 {} \;
+
+# Add group write permissions
+find /var/www -type f -exec chmod 0664 {} \;
+
+# Make drush executable
+chmod u+x -R $PROJECT_DIR/vendor/bin/*

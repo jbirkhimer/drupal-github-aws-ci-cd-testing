@@ -12,7 +12,7 @@ mkdir -p $BACKUP_DIR
 #tar -zcvf $BACKUP_DIR/archive-$DEPLOYMENT_ID_$(date +"%Y-%m-%d").tar.gz#
 #../vendor/bin/drush sql:dump --gzip --result-file=$BACKUP_DIR/database-$DEPLOYMENT_ID_$(date +"%Y-%m-%d").sql
 
-../vendor/bin/drush archive:dump -y --destination=BACKUP_FILE
+../vendor/bin/drush archive:dump -y --destination=BACKUP_FILE --exclude-code-paths=web/sites/default/settings.php
 
 ../vendor/bin/drush state:set system.maintenance_mode TRUE
 
