@@ -2,7 +2,7 @@ _core:
   default_config_hash: VDJxTZtQR21qB4lvOq8zszJZLvLKrSPQpdn2E3T71Ww
 langcode: en
 uuid: 93558a26-d1f4-4976-acc7-82784ad04eba
-name: 'drupal-github-aws-ci-cd-testing (STAGE)'
+name: 'drupal-github-aws-ci-cd-testing (STAGE version=0.0.1)'
 mail: admin@example.com
 slogan: ''
 page:
