@@ -61,8 +61,8 @@ jobs:
         commit_hash=`git rev-parse HEAD`
         REPOSITORY_NAME=`basename $GITHUB_REPOSITORY`
         aws deploy create-deployment \
-          --application-name drupal-app \
-          --deployment-group-name $REPOSITORY_NAME-dg-${{inputs.environment}} \
+          --application-name $REPOSITORY_NAME \
+          --deployment-group-name ${{inputs.environment}} \
           --deployment-config-name CodeDeployDefault.OneAtATime \
           --github-location repository=$GITHUB_REPOSITORY,commitId=$commit_hash
 #          --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
