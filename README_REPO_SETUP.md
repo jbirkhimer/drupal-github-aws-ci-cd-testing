@@ -110,20 +110,20 @@ Set up repository with a new Landoified vanilla Drupal 10 site with Configuratio
 
     // Disable all split by default.
     foreach ($split_envs as $split_env) {
-      $config["$split_filename_prefix.$split_env"]['status'] = FALSE;
+      $config['$split_filename_prefix.$split_env']['status'] = FALSE;
     }
 
     # manually set environment
-    #putenv("ENVIRONMENT=local");
+    #putenv('ENVIRONMENT=local');
 
     $split = getenv('ENVIRONMENT');
 
     // Enable the environment split only if it exists.
     if ($split != FALSE) {
-      $config["$split_filename_prefix.$split"]['status'] = TRUE;
+      $config['$split_filename_prefix.$split']['status'] = TRUE;
     } else {
       $split = 'local';
-      $config["$split_filename_prefix.$split"]['status'] = TRUE;
+      $config['$split_filename_prefix.$split']['status'] = TRUE;
     }
     ```
 5. Create the drupal config split dir's

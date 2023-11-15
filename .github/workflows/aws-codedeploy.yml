@@ -3,9 +3,10 @@
 #
 # To use this workflow, you will need to complete the following set-up steps:
 #
-# 1. Store an IAM user access key in GitHub Actions secrets named `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
-#    See the documentation for each action used below for the recommended IAM policies for this IAM user,
-#    and best practices on handling the access key credentials.
+# 1. Store an IAM Role arn in GitHub Actions secrets named `IAMROLE_GITHUB`.
+#    See the documentation for each action used below for the recommended IAM policies for this IAM role,
+#    and best practices.
+# 2. Setup CodeDeploy Application and Deployment Groups.
 
 name: Deploy to Amazon EC2
 
